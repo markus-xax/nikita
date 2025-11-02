@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пример 3: Интерактивная страница</title>
+    <link rel="stylesheet" href="styles-3.css">
+</head>
+<body>
+    <header>
+        <h1>Интерактивная страница</h1>
+    </header>
+
+    <main>
+        <!-- Счетчик -->
+        <section class="card">
+            <h2>Счетчик</h2>
+            <div class="counter-container">
+                <button id="decreaseBtn" class="btn btn-danger">-</button>
+                <span id="counterValue" class="counter-value">0</span>
+                <button id="increaseBtn" class="btn btn-success">+</button>
+            </div>
+            <button id="resetBtn" class="btn btn-secondary">Сбросить</button>
+        </section>
+
+        <!-- Список задач -->
+        <section class="card">
+            <h2>Список задач</h2>
+            <div class="todo-input-container">
+                <input type="text" id="todoInput" placeholder="Введите задачу...">
+                <button id="addTodoBtn" class="btn btn-primary">Добавить</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+        </section>
+
+        <!-- Цветовой переключатель -->
+        <section class="card">
+            <h2>Цветовая тема</h2>
+            <div class="theme-buttons">
+                <button class="theme-btn" data-theme="light">Светлая</button>
+                <button class="theme-btn" data-theme="dark">Темная</button>
+                <button class="theme-btn" data-theme="blue">Синяя</button>
+            </div>
+        </section>
+
+        <!-- Модальное окно -->
+        <section class="card">
+            <h2>Модальное окно</h2>
+            <button id="openModalBtn" class="btn btn-primary">Открыть модальное окно</button>
+        </section>
+
+        <!-- Модальное окно (скрыто по умолчанию) -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Модальное окно</h2>
+                <p>Это пример модального окна. Нажмите на крестик или вне окна, чтобы закрыть.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="script-3.js"></script>
+</body>
+</html>
+

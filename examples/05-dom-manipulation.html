@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пример 5: Манипуляции с DOM</title>
+    <link rel="stylesheet" href="styles-5.css">
+</head>
+<body>
+    <header>
+        <h1>Манипуляции с DOM</h1>
+    </header>
+
+    <main>
+        <!-- Создание элементов -->
+        <section class="card">
+            <h2>Создание и добавление элементов</h2>
+            <div class="input-group">
+                <input type="text" id="newItemInput" placeholder="Введите текст...">
+                <button id="addItemBtn" class="btn btn-primary">Добавить элемент</button>
+            </div>
+            <div id="itemsContainer" class="items-container"></div>
+        </section>
+
+        <!-- Изменение стилей -->
+        <section class="card">
+            <h2>Изменение стилей через JavaScript</h2>
+            <div id="styleBox" class="style-box">
+                Нажмите кнопки, чтобы изменить мой стиль!
+            </div>
+            <div class="button-group">
+                <button id="changeColorBtn" class="btn btn-success">Изменить цвет</button>
+                <button id="changeSizeBtn" class="btn btn-info">Изменить размер</button>
+                <button id="toggleBorderBtn" class="btn btn-warning">Добавить/Убрать границу</button>
+                <button id="resetStyleBtn" class="btn btn-secondary">Сбросить стили</button>
+            </div>
+        </section>
+
+        <!-- Работа с классами -->
+        <section class="card">
+            <h2>Работа с классами</h2>
+            <div id="classBox" class="class-box default">
+                Этот элемент меняет классы
+            </div>
+            <div class="button-group">
+                <button id="addClassBtn" class="btn btn-primary">Добавить класс</button>
+                <button id="removeClassBtn" class="btn btn-danger">Удалить класс</button>
+                <button id="toggleClassBtn" class="btn btn-warning">Переключить класс</button>
+            </div>
+        </section>
+
+        <!-- Работа с атрибутами -->
+        <section class="card">
+            <h2>Работа с атрибутами</h2>
+            <img id="dynamicImage" src="https://via.placeholder.com/300x200/667eea/ffffff?text=Изображение+1" 
+                 alt="Динамическое изображение" class="dynamic-image">
+            <div class="button-group">
+                <button id="changeSrcBtn" class="btn btn-primary">Изменить изображение</button>
+                <button id="changeAltBtn" class="btn btn-info">Изменить alt</button>
+                <button id="toggleHiddenBtn" class="btn btn-warning">Скрыть/Показать</button>
+            </div>
+        </section>
+
+        <!-- Работа с содержимым -->
+        <section class="card">
+            <h2>Работа с содержимым</h2>
+            <div id="contentBox" class="content-box">
+                Исходный текст
+            </div>
+            <div class="input-group">
+                <input type="text" id="contentInput" placeholder="Введите новый текст...">
+                <button id="changeTextBtn" class="btn btn-primary">Изменить текст</button>
+                <button id="changeHtmlBtn" class="btn btn-success">Изменить HTML</button>
+            </div>
+        </section>
+
+        <!-- Удаление элементов -->
+        <section class="card">
+            <h2>Удаление элементов</h2>
+            <div id="removableContainer" class="removable-container">
+                <div class="removable-item">Элемент 1 <button class="remove-btn">Удалить</button></div>
+                <div class="removable-item">Элемент 2 <button class="remove-btn">Удалить</button></div>
+                <div class="removable-item">Элемент 3 <button class="remove-btn">Удалить</button></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script-5.js"></script>
+</body>
+</html>
+

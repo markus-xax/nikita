@@ -1,0 +1,260 @@
+/* Пример 5: Манипуляции с DOM */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    gap: 25px;
+}
+
+.card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #667eea;
+}
+
+/* Группы элементов */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Кнопки */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #5568d3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Контейнер элементов */
+.items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #667eea;
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Блок для изменения стилей */
+.style-box {
+    padding: 30px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+/* Блок для работы с классами */
+.class-box {
+    padding: 30px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+.class-box.default {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+.class-box.highlighted {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 3px solid #ffc107;
+}
+
+.class-box.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 3px solid #28a745;
+}
+
+.class-box.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 3px solid #dc3545;
+}
+
+/* Изображение */
+.dynamic-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: block;
+    transition: opacity 0.3s;
+}
+
+.dynamic-image.hidden {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Блок содержимого */
+.content-box {
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    min-height: 60px;
+    border: 2px solid #e0e0e0;
+}
+
+/* Контейнер для удаляемых элементов */
+.removable-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.removable-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #dc3545;
+    animation: slideIn 0.3s;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.remove-btn:hover {
+    background-color: #c82333;
+}
+
