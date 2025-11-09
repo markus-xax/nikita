@@ -1,0 +1,23 @@
+{
+  "name": "backend-playground",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Учебный Node.js сервер для освоения базовых концепций без фреймворков",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "lint": "echo \"No linter configured yet\""
+  },
+  "keywords": [
+    "nodejs",
+    "tutorial",
+    "backend",
+    "http"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
+
