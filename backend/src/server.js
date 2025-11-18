@@ -1,99 +1,93 @@
-const http = require("http");
+const express = require("express");
 const { PORT } = require("./config");
 const { logRequest } = require("./utils/file-logger");
 const { sum } = require("./modules/math");
 
-function sendJson(res, statusCode, data) {
-  const body = JSON.stringify(data, null, 2);
-  res.writeHead(statusCode, {
-    "Content-Type": "application/json; charset=utf-8",
-    "Content-Length": Buffer.byteLength(body),
-  });
-  res.end(body);
-  return body;
-}
+const app = express();
 
-function collectRequestBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
+// Middleware для парсинга JSON тела запроса
+app.use(express.json());
 
-    req.on("data", (chunk) => {
-      chunks.push(chunk);
-    });
+// Middleware для логирования запросов
+app.use((req, res, next) => {
+  // Сохраняем оригинальные методы res.json и res.send для логирования
+  const originalJson = res.json.bind(res);
+  const originalSend = res.send.bind(res);
+  let responseBody = null;
 
-    req.on("end", () => {
-      const rawBody = Buffer.concat(chunks).toString();
-      if (!rawBody) {
-        resolve(null);
-        return;
-      }
+  res.json = function (data) {
+    responseBody = JSON.stringify(data, null, 2);
+    return originalJson(data);
+  };
 
-      try {
-        resolve(JSON.parse(rawBody));
-      } catch {
-        resolve(rawBody);
-      }
-    });
+  res.send = function (data) {
+    responseBody = typeof data === "string" ? data : JSON.stringify(data);
+    return originalSend(data);
+  };
 
-    req.on("error", reject);
-  });
-} 
-
-const server = http.createServer(async (req, res) => {
-  const { method, url } = req;
-  let responseBody;
-  let statusCode = 200;
-
-  try {
-    if (method === "GET" && url === "/") {
-      responseBody = sendJson(res, 200, {
-        message: "Добро пожаловать в Backend Playground!",
-        routes: ["/status", "/math/sample", "/echo"],
-      });
-    } else if (method === "GET" && url === "/status") {
-      responseBody = sendJson(res, 200, {
-        status: "ok",
-        uptime: process.uptime(),
-        node: process.version,
-      });
-    } else if (method === "GET" && url === "/math/sample") {
-      responseBody = sendJson(res, 200, {
-        description: "Пример использования собственного модуля math",
-        expression: "sum(4, 7)",
-        result: sum(4, 7),
-      });
-    } else if (method === "POST" && url === "/echo") {
-      const payload = await collectRequestBody(req);
-      responseBody = sendJson(res, 200, {
-        youSent: payload,
-        type: typeof payload,
-      });
-    } else {
-      statusCode = 404;
-      responseBody = sendJson(res, statusCode, {
-        error: "Not Found",
-        message: "Маршрут не реализован. Посмотри README для заданий.",
-      });
-    }
-  } catch (error) {
-    statusCode = 500;
-    // eslint-disable-next-line no-console
-    console.error("Ошибка сервера:", error);
-    responseBody = sendJson(res, statusCode, {
-      error: "Internal Server Error",
-      message: error.message,
-    });
-  } finally {
+  res.on("finish", () => {
     logRequest({
-      method,
-      url,
-      statusCode,
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
       body: responseBody,
     });
-  }
+  });
+
+  next();
 });
 
-server.listen(PORT, () => {
+// Маршруты
+app.get("/", (req, res) => {
+  res.json({
+    message: "Добро пожаловать в Backend Playground!",
+    routes: ["/status", "/math/sample", "/echo"],
+  });
+});
+
+app.get("/status", (req, res) => {
+  res.json({
+    status: "ok",
+    uptime: process.uptime(),
+    node: process.version,
+  });
+});
+
+app.get("/math/sample", (req, res) => {
+  res.json({
+    description: "Пример использования собственного модуля math",
+    expression: "sum(4, 7)",
+    result: sum(4, 7),
+  });
+});
+
+app.post("/echo", (req, res) => {
+  res.json({
+    youSent: req.body,
+    type: typeof req.body,
+    headers: req.headers,
+  });
+});
+
+// Обработка 404
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Not Found",
+    message: "Маршрут не реализован. Посмотри README для заданий.",
+  });
+});
+
+// Обработка ошибок
+app.use((error, req, res, next) => {
+  // eslint-disable-next-line no-console
+  console.error("Ошибка сервера:", error);
+  res.status(500).json({
+    error: "Internal Server Error",
+    message: error.message,
+  });
+});
+
+app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
 });
