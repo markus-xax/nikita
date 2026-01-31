@@ -2,6 +2,9 @@ const express = require("express");
 const { PORT } = require("./config");
 const { logRequest } = require("./utils/file-logger");
 const { sum } = require("./modules/math");
+const todosRouter = require("./routes/todos");
+const prisma = require("./db/prisma");
+const { connectRedis } = require("./db/redis");
 
 const app = express();
 
@@ -69,6 +72,9 @@ app.post("/echo", (req, res) => {
   });
 });
 
+// Подключение роутера для задач
+app.use("/todos", todosRouter);
+
 // Обработка 404
 app.use((req, res) => {
   res.status(404).json({
@@ -81,14 +87,54 @@ app.use((req, res) => {
 app.use((error, req, res, next) => {
   // eslint-disable-next-line no-console
   console.error("Ошибка сервера:", error);
-  res.status(500).json({
-    error: "Internal Server Error",
+  
+  // Используем statusCode из ошибки, если он есть, иначе 500
+  const statusCode = error.statusCode || 500;
+  const errorName = error.name || 'Internal Server Error';
+  
+  res.status(statusCode).json({
+    error: errorName,
     message: error.message,
   });
 });
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
+// Инициализация и запуск сервера
+const startServer = async () => {
+  try {
+    // Проверяем подключение к Prisma (PostgreSQL)
+    await prisma.$connect();
+    console.log('✅ Prisma подключен к PostgreSQL');
+    
+    // Подключаемся к Redis (не критично, если недоступен)
+    await connectRedis();
+    
+    // Запускаем сервер
+    app.listen(PORT, () => {
+      // eslint-disable-next-line no-console
+      console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
+      console.log('📚 Используемые технологии:');
+      console.log('   - PostgreSQL (через Prisma ORM)');
+      console.log('   - Redis (для кеширования)');
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('❌ Ошибка при запуске сервера:', error);
+    process.exit(1);
+  }
+};
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\n🛑 Получен сигнал SIGINT, завершаем работу...');
+  await prisma.$disconnect();
+  process.exit(0);
 });
+
+process.on('SIGTERM', async () => {
+  console.log('\n🛑 Получен сигнал SIGTERM, завершаем работу...');
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+startServer();
 
