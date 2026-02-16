@@ -8,6 +8,20 @@ const { connectRedis } = require("./db/redis");
 
 const app = express();
 
+// CORS middleware для разрешения запросов с фронтенда
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Vite dev server
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  
+  // Обработка preflight запросов
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 // Middleware для парсинга JSON тела запроса
 app.use(express.json());
 

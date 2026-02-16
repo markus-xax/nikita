@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../../components/ui/badge";
 import {
   Card,
@@ -18,12 +18,13 @@ import {
   DialogTrigger,
 } from "../../components/ui/dialog";
 import { cn } from "../../lib/utils";
-
-interface TodoItem {
-  id: number;
-  text: string;
-  completed: boolean;
-}
+import {
+  getAllTodos,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+  type Todo,
+} from "../../lib/api";
 
 const themes = {
   light: {
@@ -46,36 +47,79 @@ const themes = {
 export function InteractivePage() {
   const [counter, setCounter] = useState(0);
   const [step, setStep] = useState(1);
-  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [todoInput, setTodoInput] = useState("");
   const [selectedTheme, setSelectedTheme] =
     useState<keyof typeof themes>("light");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Загрузка задач с бэкенда при монтировании компонента
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
+  const loadTodos = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllTodos();
+      setTodos(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка загрузки задач");
+      console.error("Ошибка загрузки задач:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const completedCount = useMemo(
     () => todos.filter((todo) => todo.completed).length,
     [todos],
   );
 
-  const addTodo = () => {
+  const addTodo = async () => {
     const text = todoInput.trim();
     if (!text) return;
-    setTodos((prev) => [
-      ...prev,
-      { id: Date.now(), text, completed: false },
-    ]);
-    setTodoInput("");
+
+    try {
+      setError(null);
+      const newTodo = await createTodo({ text });
+      setTodos((prev) => [...prev, newTodo]);
+      setTodoInput("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка создания задачи");
+      console.error("Ошибка создания задачи:", err);
+    }
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    );
+  const toggleTodo = async (id: number) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      setError(null);
+      const updatedTodo = await updateTodo(id, {
+        completed: !todo.completed,
+      });
+      setTodos((prev) =>
+        prev.map((t) => (t.id === id ? updatedTodo : t)),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка обновления задачи");
+      console.error("Ошибка обновления задачи:", err);
+    }
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  const handleDeleteTodo = async (id: number) => {
+    try {
+      setError(null);
+      await deleteTodo(id);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка удаления задачи");
+      console.error("Ошибка удаления задачи:", err);
+    }
   };
 
   return (
@@ -139,12 +183,27 @@ export function InteractivePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Todo-лист</CardTitle>
+            <CardTitle>Todo-лист (с бэкендом)</CardTitle>
             <CardDescription>
-              Кликните по задаче, чтобы отметить её выполненной. Можно удалять.
+              Данные сохраняются в PostgreSQL через REST API. Кликните по задаче,
+              чтобы отметить её выполненной. Можно удалять.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="rounded-md border border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ml-2 h-auto p-0 text-xs"
+                  onClick={() => setError(null)}
+                >
+                  ✕
+                </Button>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <input
                 type="text"
@@ -158,45 +217,52 @@ export function InteractivePage() {
                     addTodo();
                   }
                 }}
+                disabled={loading}
               />
-              <Button type="button" onClick={addTodo}>
-                Добавить
+              <Button type="button" onClick={addTodo} disabled={loading}>
+                {loading ? "..." : "Добавить"}
               </Button>
             </div>
 
-            <ul className="space-y-2">
-              {todos.length ? (
-                todos.map((todo) => (
-                  <li
-                    key={todo.id}
-                    className={cn(
-                      "flex items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors",
-                      todo.completed
-                        ? "bg-primary/10 text-primary line-through"
-                        : "bg-background",
-                    )}
-                  >
-                    <button
-                      className="flex-1 text-left"
-                      onClick={() => toggleTodo(todo.id)}
+            {loading && todos.length === 0 ? (
+              <CardDescription>Загрузка задач...</CardDescription>
+            ) : (
+              <ul className="space-y-2">
+                {todos.length ? (
+                  todos.map((todo) => (
+                    <li
+                      key={todo.id}
+                      className={cn(
+                        "flex items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors",
+                        todo.completed
+                          ? "bg-primary/10 text-primary line-through"
+                          : "bg-background",
+                      )}
                     >
-                      {todo.text}
-                    </button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => deleteTodo(todo.id)}
-                    >
-                      Удалить
-                    </Button>
-                  </li>
-                ))
-              ) : (
-                <CardDescription>
-                  Пока задач нет. Добавьте первую!
-                </CardDescription>
-              )}
-            </ul>
+                      <button
+                        className="flex-1 text-left"
+                        onClick={() => toggleTodo(todo.id)}
+                        disabled={loading}
+                      >
+                        {todo.text}
+                      </button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteTodo(todo.id)}
+                        disabled={loading}
+                      >
+                        Удалить
+                      </Button>
+                    </li>
+                  ))
+                ) : (
+                  <CardDescription>
+                    Пока задач нет. Добавьте первую!
+                  </CardDescription>
+                )}
+              </ul>
+            )}
           </CardContent>
           <CardFooter className="flex justify-between text-sm text-muted-foreground">
             <span>Всего: {todos.length}</span>
